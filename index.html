@@ -7,7 +7,95 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Tippy Tap"/>
+<meta name="theme-color" content="#0d0022"/>
 <title>Tippy Tap 🖐️</title>
+<script>
+// ── Generate app icon via canvas ──────────────────────────────
+(function(){
+  function makeIcon(size){
+    const c=document.createElement('canvas');
+    c.width=c.height=size;
+    const g=c.getContext('2d');
+    const s=size, r=s*0.22;
+    // Rounded rect clip
+    g.beginPath();
+    g.moveTo(r,0);g.lineTo(s-r,0);g.arcTo(s,0,s,r,r);
+    g.lineTo(s,s-r);g.arcTo(s,s,s-r,s,r);
+    g.lineTo(r,s);g.arcTo(0,s,0,s-r,r);
+    g.lineTo(0,r);g.arcTo(0,0,r,0,r);
+    g.closePath();g.save();g.clip();
+    // Background gradient
+    const bg=g.createRadialGradient(s*.5,s*.35,0,s*.5,s*.6,s*.75);
+    bg.addColorStop(0,'#5a1a9a');bg.addColorStop(1,'#0d0022');
+    g.fillStyle=bg;g.fillRect(0,0,s,s);
+    // Soft glow ring
+    const glow=g.createRadialGradient(s*.5,s*.5,s*.15,s*.5,s*.5,s*.5);
+    glow.addColorStop(0,'rgba(180,100,255,0.25)');
+    glow.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=glow;g.fillRect(0,0,s,s);
+    // Hand emoji
+    g.font=s*.5+'px serif';
+    g.textAlign='center';g.textBaseline='alphabetic';
+    g.fillText('🖐️',s*.5,s*.7);
+    // Coloured star bursts
+    [{x:.79,y:.17,r:s*.06,c:'#ffd166'},{x:.19,y:.23,r:s*.05,c:'#ff6eb4'},
+     {x:.87,y:.56,r:s*.042,c:'#48cae4'},{x:.11,y:.64,r:s*.046,c:'#a78bfa'},
+     {x:.57,y:.09,r:s*.038,c:'#6ee7b7'},{x:.72,y:.78,r:s*.034,c:'#ffb347'}
+    ].forEach(d=>{
+      g.beginPath();
+      for(let i=0;i<10;i++){
+        const a=(i*Math.PI/5)-Math.PI/2;
+        const rad=i%2===0?d.r:d.r*.42;
+        const px=s*d.x+rad*Math.cos(a),py=s*d.y+rad*Math.sin(a);
+        i===0?g.moveTo(px,py):g.lineTo(px,py);
+      }
+      g.closePath();g.fillStyle=d.c;
+      g.shadowColor=d.c;g.shadowBlur=s*.04;g.fill();
+    });
+    // Subtle label
+    g.shadowBlur=0;g.font='bold '+s*.09+'px sans-serif';
+    g.textAlign='center';g.textBaseline='alphabetic';
+    g.fillStyle='rgba(255,255,255,0.3)';
+    g.fillText('tippy tap',s*.5,s*.93);
+    g.restore();
+    return c.toDataURL('image/png');
+  }
+
+window.addEventListener(‘DOMContentLoaded’,()=>{
+const icon512=makeIcon(512);
+// Apple touch icon
+const al=document.createElement(‘link’);
+al.rel=‘apple-touch-icon’;al.sizes=‘512x512’;al.href=icon512;
+document.head.appendChild(al);
+// Favicon
+const fl=document.createElement(‘link’);
+fl.rel=‘icon’;fl.type=‘image/png’;fl.href=makeIcon(64);
+document.head.appendChild(fl);
+// Web App Manifest
+const manifest={
+name:‘Tippy Tap’,short_name:‘Tippy Tap’,
+description:‘A joyful tap playground for babies & toddlers’,
+start_url:’./’,display:‘fullscreen’,
+orientation:‘portrait-primary’,
+background_color:’#0d0022’,theme_color:’#0d0022’,
+icons:[{src:icon512,sizes:‘512x512’,type:‘image/png’,purpose:‘any maskable’}]
+};
+const ml=document.createElement(‘link’);ml.rel=‘manifest’;
+ml.href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:‘application/manifest+json’}));
+document.head.appendChild(ml);
+});
+})();
+
+// ── Service Worker registration ───────────────────────────────
+if(‘serviceWorker’ in navigator){
+window.addEventListener(‘load’,()=>{
+navigator.serviceWorker.register(’./sw.js’)
+.then(r=>console.log(‘SW registered:’,r.scope))
+.catch(e=>console.warn(‘SW failed:’,e));
+});
+}
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&family=Bubblegum+Sans&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;}
