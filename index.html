@@ -989,9 +989,15 @@ function goToMenu(){
   hud.style.display='none';settingsTray.classList.remove('open');
   showScreen('scene-select');
   particles=[];clearAmbient();
-  document.querySelectorAll('.fx,.ripple-ring').forEach(e=>e.remove());
+  document.querySelectorAll('.fx,.ripple-ring,.key-burst').forEach(e=>e.remove());
   ctx2d.clearRect(0,0,canvas.width,canvas.height);
   document.body.style.background='';
+  // Reset keyboard state
+  kbdActive=false;
+  kbdBtn.classList.remove('on');
+  kbdLabel.textContent='Keyboard';
+  kbdInput.classList.remove('active');
+  kbdInput.blur();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1185,27 +1191,6 @@ kbdInput.addEventListener('blur', () => {
 function handleKbd(e){ e.stopPropagation(); toggleKeyboard(); }
 kbdBtn.addEventListener('click', handleKbd);
 kbdBtn.addEventListener('touchend', handleKbd, {passive: true});
-
-// Turn keyboard off when leaving a scene
-const _origGoToMenu = goToMenu;
-// Patch goToMenu to also reset keyboard state
-const __goToMenuOrig = goToMenu;
-function goToMenu(){
-  __goToMenuOrig();
-  if(kbdActive){
-    kbdActive = false;
-    kbdBtn.classList.remove('on');
-    kbdLabel.textContent = 'Keyboard';
-    kbdInput.classList.remove('active');
-    kbdInput.blur();
-  }
-}
-// Re-wire back button to new goToMenu
-backBtn.removeEventListener('click', handleBack);
-backBtn.removeEventListener('touchend', handleBack);
-function handleBack(e){ e.stopPropagation(); goToMenu(); }
-backBtn.addEventListener('click', handleBack);
-backBtn.addEventListener('touchend', handleBack, {passive:true});
 
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('gesturestart',e=>e.preventDefault());
